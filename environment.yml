@@ -1,5 +1,9 @@
 name: dev_soepy
 
+channels:
+  - conda
+  - conda-forge
+
 dependencies:
   - python=3.6
   - numpy
@@ -9,5 +13,6 @@ dependencies:
   - pytest-xdist
   - scipy
   - flake8
+  - jupyterlab
   - pip:
     - oyaml
