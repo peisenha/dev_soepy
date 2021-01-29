@@ -1,5 +1,6 @@
 #!usr/bin/env python
 from functools import partial
+import pickle as pkl
 
 import pybobyqa as pybob
 import pandas as pd
@@ -17,8 +18,7 @@ model_para_fname = "start.soepy.pkl"
 
 moments_obs = get_observed_moments(get_moments)
 
-# TODO: weighting matrix is available in this dir, that change would be next.
-weighting_matrix = np.identity(len(moments_obs))
+weighting_matrix = pkl.load(open("weighting_matrix.pkl", "rb"))
 model_params = pd.read_pickle(model_para_fname)
 
 # We extend the model parameters to also include the replacement rate as the last element.
@@ -33,6 +33,15 @@ model_params.loc[("disutil_work", "no_kids_f"), "fixed"] = False
 model_params.loc[("disutil_work", "no_kids_p"), "fixed"] = False
 model_params.loc[("disutil_work", "yes_kids_f"), "fixed"] = False
 model_params.loc[("disutil_work", "yes_kids_p"), "fixed"] = False
+
+model_params.loc[("const_wage_eq", "gamma_0s1"), "fixed"] = False
+model_params.loc[("const_wage_eq", "gamma_0s2"), "fixed"] = False
+model_params.loc[("const_wage_eq", "gamma_0s3"), "fixed"] = False
+
+model_params.loc[("exp_returns", "gamma_1s1"), "fixed"] = False
+model_params.loc[("exp_returns", "gamma_1s2"), "fixed"] = False
+model_params.loc[("exp_returns", "gamma_1s3"), "fixed"] = False
+
 model_params = model_params.astype({"fixed": bool})
 
 # We set the tuning parameters of the optimizer so that it runs forever.
@@ -56,4 +65,4 @@ adapter_smm = SimulationBasedEstimationCls(**adapter_kwargs)
 x0, bounds = prepare_optimizer_interface(model_params)
 p_wrapper_numpy = partial(wrapper_numpy, model_params, adapter_smm)
 rslt = pybob.solve(p_wrapper_numpy, x0, bounds=bounds, **opt_kwargs)
-np.testing.assert_almost_equal(rslt.f, 0.48778201681898736)
+np.testing.assert_almost_equal(rslt.f, 740.9225994597118)
