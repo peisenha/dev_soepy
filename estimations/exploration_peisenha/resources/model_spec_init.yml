@@ -9,6 +9,8 @@ EDUC:
 SIMULATION:
     seed_sim: 102
     num_agents_sim: 50000
+EXPERIENCE:
+    exp_cap: 15
 SOLUTION:
     seed_emax: 635
     num_draws_emax: 500

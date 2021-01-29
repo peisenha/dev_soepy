@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 
 import soepy
-
+import os
 import numpy as np
 
 """This module contains functions to calculate the moments based on the simulated
@@ -230,6 +230,18 @@ def get_moments(df):
 
     return moments
 
+# def get_moments(df):
+#     num_periods = df.index.get_level_values("Period").max()
+#
+#     # Chioce probabilites in each period.
+#     df_probs_grid = pd.DataFrame(data=0, columns=["Value"], index=pd.MultiIndex.from_product(
+#         [list(range(num_periods)), ["Home", "Part", "Full"]], names=["Period", "Choice"]))
+#     df_probs = df.groupby("Period").Choice.value_counts(normalize=True).rename("Value")
+#     df_probs_grid.update(df_probs)
+#     moments = list(df_probs_grid.sort_index().values[:, 0])
+#
+#     return moments
+
 
 def df_alignment(df):
     df_int = df.copy()
@@ -322,3 +334,11 @@ def plot_basics_wages(df_obs, df_sim, std=False):
             ax.plot(x, y_obs, label="Observed")
             ax.legend()
             ax.set_title(f"Standard deviation, {work_level}, {edu_level}")
+
+
+def get_observed_moments(get_moments):
+
+    fname = os.environ["PROJECT_DIR"] + "/resources/soepcore_struct_prep.dta"
+    df_obs = pd.read_stata(fname, convert_categoricals=False)
+    df_obs = df_alignment(df_obs)
+    return get_moments(df_obs)
