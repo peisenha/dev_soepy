@@ -228,6 +228,17 @@ def get_moments(df):
     df_probs_grid.update(df_probs)
     moments = list(df_probs_grid.sort_index().values[:, 0])
 
+    # df_wages_grid = pd.DataFrame(data=0, columns=["Value"], index=pd.MultiIndex.from_product(
+    #     [list(range(39)), ["Part", "Full"], ["High", "Medium", "Low"]],
+    #     names=["Period", "Choice", "Education_Level"]))
+    #
+    # df_sim_working = df[df["Choice"].isin(["Full", "Part"])]
+    # df_wage = df_sim_working.groupby(["Period", "Choice", "Education_Level"])[
+    #     "Wage_Observed"].mean().rename("Value")
+    #
+    # df_wages_grid.update(df_wage)
+    # moments += list(df_wages_grid.sort_index().values[:, 0])
+
     return moments
 
 # def get_moments(df):
@@ -241,7 +252,7 @@ def get_moments(df):
 #     moments = list(df_probs_grid.sort_index().values[:, 0])
 #
 #     return moments
-
+#
 
 def df_alignment(df):
     df_int = df.copy()
