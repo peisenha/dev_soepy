@@ -1,23 +1,21 @@
 """This module contains functions to calculate the moments based on the simulated
 data."""
-
-from functools import partial
-import pickle
-
+import os
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-import soepy
-import os
-import numpy as np
+
+LABELS_EDUCATION = ["High", "Medium", "Low"]
+LABELS_CHOICE = ["Home", "Part", "Full"]
+LABELS_WORK = ["Part", "Full"]
 
 """This module contains functions to calculate the moments based on the simulated
 data."""
 
 
-def get_weighting_matrix(data_frame, num_samples):
+def get_weighting_matrix(data_frame, get_moments, num_samples):
     """Calculates the weighting matrix based on the
     moments of the observed data"""
 
@@ -44,58 +42,6 @@ def get_weighting_matrix(data_frame, num_samples):
     weighting_matrix = np.diag(moments_var ** (-1))
 
     return weighting_matrix
-
-
-
-def get_weighting_matrix_old(data_frame, num_agents_smm, num_samples):
-    """Calculates the weighting matrix based on the
-    moments of the observed data"""
-
-    moments_sample = []
-    moments_sample_dict = []
-    drop_counter_len = 0
-    drop_counter_nan = 0
-
-    # Collect n samples of moments
-    for k in range(num_samples):
-        data_frame_sample = data_frame.sample(n=num_agents_smm)
-
-        
-        
-        moments_sample_k = get_moments(data_frame_sample)
-        moments_sample_dict.append(moments_sample_k)
-
-        # Convert to array
-        stats_sample_k = []
-        for group in moments_sample_k.keys():
-            for key_ in moments_sample_k[group].keys():
-                stats_sample_k.extend(moments_sample_k[group][key_])
-
-        # If nan drop sample
-        if len(stats_sample_k) != 491:
-            drop_counter_len += 1
-            raise AssertionError
-
-        if np.isnan(np.array(stats_sample_k)).any():
-            drop_counter_nan += 1
-            raise AssertionError
-
-        moments_sample.append(np.array(stats_sample_k))
-
-    # Calculate sample variances for each moment
-    moments_var = np.array(moments_sample).var(axis=0)
-
-    # Handling of nan
-    moments_var[np.isnan(moments_var)] = np.nanmax(moments_var)
-
-    # Handling of zero variances
-    is_zero = moments_var <= 1e-10
-    moments_var[is_zero] = 0.1
-
-    # Construct weighting matrix
-    weighting_matrix = np.diag(moments_var ** (-1))
-
-    return weighting_matrix, data_frame_sample
 
 
 def transitions_out_to_in(data_subset, num_periods):
@@ -218,43 +164,6 @@ def transitions_in_to_out_deciles(data, decile, num_periods):
     return avg
 
 
-def get_moments(df):
-    num_periods = df.index.get_level_values("Period").max()
-
-    # Choice probabilities, not differentiating by education
-    df_probs_grid = pd.DataFrame(data=0, columns=["Value"], index=pd.MultiIndex.from_product(
-        [list(range(num_periods)), ["Home", "Part", "Full"]], names=["Period", "Choice"]))
-    df_probs = df.groupby("Period").Choice.value_counts(normalize=True).rename("Value")
-    df_probs_grid.update(df_probs)
-    moments = list(df_probs_grid.sort_index().values[:, 0])
-
-    # Average wages, differentiating by education
-    df_wages_grid = pd.DataFrame(data=0, columns=["Value"], index=pd.MultiIndex.from_product(
-        [list(range(num_periods)), ["Part", "Full"], ["High", "Medium", "Low"]],
-        names=["Period", "Choice", "Education_Level"]))
-
-    df_sim_working = df[df["Choice"].isin(["Full", "Part"])]
-    df_wage = df_sim_working.groupby(["Period", "Choice", "Education_Level"])[
-        "Wage_Observed"].mean().rename("Value")
-
-    df_wages_grid.update(df_wage)
-    moments += list(df_wages_grid.sort_index().values[:, 0])
-
-    return moments
-
-# def get_moments(df):
-#     num_periods = df.index.get_level_values("Period").max()
-#
-#     # Chioce probabilites in each period.
-#     df_probs_grid = pd.DataFrame(data=0, columns=["Value"], index=pd.MultiIndex.from_product(
-#         [list(range(num_periods)), ["Home", "Part", "Full"]], names=["Period", "Choice"]))
-#     df_probs = df.groupby("Period").Choice.value_counts(normalize=True).rename("Value")
-#     df_probs_grid.update(df_probs)
-#     moments = list(df_probs_grid.sort_index().values[:, 0])
-#
-#     return moments
-#
-
 def df_alignment(df):
     df_int = df.copy()
     rename = dict()
@@ -267,6 +176,7 @@ def df_alignment(df):
 
 
     return df_int
+
 
 def plot_basics_choices(df_obs, df_sim):
 
