@@ -40,6 +40,13 @@ model_params.loc[("exp_returns", "gamma_1s1"), "fixed"] = False
 model_params.loc[("exp_returns", "gamma_1s2"), "fixed"] = False
 model_params.loc[("exp_returns", "gamma_1s3"), "fixed"] = False
 
+model_params.loc[("disutil_work", "child_02_f"), "fixed"] = False
+model_params.loc[("disutil_work", "child_02_p"), "fixed"] = False
+model_params.loc[("disutil_work", "child_35_f"), "fixed"] = False
+model_params.loc[("disutil_work", "child_35_p"), "fixed"] = False
+model_params.loc[("disutil_work", "child_610_f"), "fixed"] = False
+model_params.loc[("disutil_work", "child_610_p"), "fixed"] = False
+
 model_params = model_params.astype({"fixed": bool})
 
 # We set the tuning parameters of the optimizer so that it runs forever.
@@ -47,7 +54,7 @@ opt_kwargs = dict()
 opt_kwargs["scaling_within_bounds"] = True
 opt_kwargs["seek_global_minimum"] = True
 opt_kwargs["objfun_has_noise"] = True
-opt_kwargs["maxfun"] = 10000
+opt_kwargs["maxfun"] = 1
 
 # We need to set up our criterion function.
 adapter_kwargs = dict()
@@ -63,4 +70,4 @@ adapter_smm = SimulationBasedEstimationCls(**adapter_kwargs)
 x0, bounds = prepare_optimizer_interface(model_params)
 p_wrapper_numpy = partial(wrapper_numpy, model_params, adapter_smm)
 rslt = pybob.solve(p_wrapper_numpy, x0, bounds=bounds, **opt_kwargs)
-np.testing.assert_almost_equal(rslt.f, 1367.110008640319)
+np.testing.assert_almost_equal(rslt.f, 729.9909734183677)
