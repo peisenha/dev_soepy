@@ -164,18 +164,29 @@ def transitions_in_to_out_deciles(data, decile, num_periods):
     return avg
 
 
-def df_alignment(df):
+def df_alignment(df, is_obs=False):
     df_int = df.copy()
     rename = dict()
     rename["Choice"] = {0: "Home", 1: "Part", 2: "Full"}
     rename["Education_Level"] = {0: "Low", 1: "Medium", 2: "High"}
-
     df_int.replace(rename, inplace=True)
 
     df_int.set_index(["Identifier", "Period"], inplace=True)
 
+    if is_obs:
+        num_persons = df_int.index.get_level_values("Identifier").nunique()
+        max_period = df_int.index.get_level_values("Period").max()
+        columns = df_int.columns
+        df_int.index.set_levels(range(num_persons), level="Identifier", inplace=True)
 
-    return df_int
+        index = pd.MultiIndex.from_product([range(num_persons), range(max_period + 1)],
+                                           names=["Identifier", "Period"])
+        df_grid = pd.DataFrame(data=None, columns=columns, index=index)
+        df_grid.update(df_int)
+    else:
+        df_grid = df_int
+
+    return df_grid
 
 
 def plot_basics_choices(df_obs, df_sim):
@@ -210,7 +221,9 @@ def plot_basics_wages(df_obs, df_sim, std=False):
 
         df_sim_work_level = df_sim[df_sim["Choice"] == work_level]
         df_obs_work_level = df_obs[df_obs["Choice"] == work_level]
-            
+
+        df_obs_work_level = df_obs_work_level.astype({"Wage_Observed": np.float})
+
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, figsize=(16, 8))
 
         for edu_level, ax in [("High", ax1), ("Medium", ax2), ("Low", ax3), ("All", ax4)]:
@@ -221,7 +234,6 @@ def plot_basics_wages(df_obs, df_sim, std=False):
             else:
                 df_sim_subset = df_sim_work_level
                 df_obs_subset = df_obs_work_level
-
 
             y_sim = df_sim_subset.groupby("Period")["Wage_Observed"].mean()
             y_obs = df_obs_subset.groupby("Period")["Wage_Observed"].mean()
