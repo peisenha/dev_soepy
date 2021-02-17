@@ -10,12 +10,12 @@ def get_moments(df):
 
     df_int = df.copy()
 
-    num_periods = df_int.index.get_level_values("Period").max()
-
     # For the observed dataset, we have many missing values in our dataset and so we must
     # restrict attention to those that work and make sure we have a numeric type.
     df_sim_working = df_int[df_int["Choice"].isin(LABELS_WORK)]
     df_sim_working = df_sim_working.astype({"Wage_Observed": np.float})
+
+    num_periods = df_int.index.get_level_values("Period").max()
 
     # Choice probabilities, differentiating by education, default entry is zero
     entries = [list(range(num_periods)), LABELS_EDUCATION, LABELS_CHOICE]
@@ -46,6 +46,38 @@ def get_moments(df):
     df_wages_mean_grid.update(df_wages_mean)
 
     moments += list(df_wages_mean_grid.sort_index().values.flatten())
+
+    # Average wages, differentiating by education and experience, default entry is average wage
+    # in sample.
+    default_entry = df_sim_working["Wage_Observed"].mean()
+
+    for choice in LABELS_WORK:
+        exp_label = f"Experience_{choice}_Time"
+
+        conditioning = ["Choice", "Education_Level", exp_label]
+        entries = [[choice], LABELS_EDUCATION, range(20)]
+        index = pd.MultiIndex.from_product(entries, names=conditioning)
+
+        grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
+        rslt = df_sim_working.groupby(conditioning)["Wage_Observed"].mean().rename("Value")
+
+        grid.update(rslt)
+
+        moments += list(grid.sort_index().values.flatten())
+
+    # Distribution of wages, default entry is average wage in sample.
+    default_entry = df_sim_working["Wage_Observed"].mean()
+
+    quantiles = [0.1, 0.25, 0.50, 0.75, 0.9]
+    conditioning = ["Choice", "Quantile"]
+    entries = [LABELS_WORK, quantiles]
+
+    index = pd.MultiIndex.from_product(entries, names=conditioning)
+    grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
+    rslt = df_sim_working.groupby(["Choice"])["Wage_Observed"].quantile(quantiles).rename("Value")
+    grid.update(rslt)
+
+    moments += list(grid.sort_index().values.flatten())
 
     # Variance of wages by work status, overall, default entry is variance of wage in sample
     default_entry = df_int["Wage_Observed"].var()
