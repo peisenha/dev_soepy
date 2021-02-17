@@ -10,15 +10,13 @@ from SimulationBasedEstimation import SimulationBasedEstimationCls
 
 from pybobyqa_auxiliary import prepare_optimizer_interface
 from pybobyqa_auxiliary import wrapper_numpy
-from dev_library import get_observed_moments
-from dev_library import get_moments
+from moments import get_moments
 
 model_spec_fname = "resources/model_spec_init.yml"
 model_para_fname = "start.soepy.pkl"
 
-moments_obs = get_observed_moments(get_moments)
-
 weighting_matrix = pkl.load(open("weighting_matrix.pkl", "rb"))
+moments_obs = pkl.load(open("observed_moments.pkl", "rb"))
 model_params = pd.read_pickle(model_para_fname)
 
 # We extend the model parameters to also include the replacement rate as the last element.
@@ -41,6 +39,18 @@ model_params.loc[("const_wage_eq", "gamma_0s3"), "fixed"] = False
 model_params.loc[("exp_returns", "gamma_1s1"), "fixed"] = False
 model_params.loc[("exp_returns", "gamma_1s2"), "fixed"] = False
 model_params.loc[("exp_returns", "gamma_1s3"), "fixed"] = False
+
+model_params.loc[("disutil_work", "child_02_f"), "fixed"] = False
+model_params.loc[("disutil_work", "child_02_p"), "fixed"] = False
+model_params.loc[("disutil_work", "child_35_f"), "fixed"] = False
+model_params.loc[("disutil_work", "child_35_p"), "fixed"] = False
+model_params.loc[("disutil_work", "child_610_f"), "fixed"] = False
+model_params.loc[("disutil_work", "child_610_p"), "fixed"] = False
+
+model_params.loc[("sd_wage_shock", slice(None)), "fixed"] = False
+
+model_params.loc[("hetrg_unobs",  slice(None)), "fixed"] = False
+model_params.loc[("shares", "share_1"), "fixed"] = False
 
 model_params = model_params.astype({"fixed": bool})
 
@@ -65,4 +75,4 @@ adapter_smm = SimulationBasedEstimationCls(**adapter_kwargs)
 x0, bounds = prepare_optimizer_interface(model_params)
 p_wrapper_numpy = partial(wrapper_numpy, model_params, adapter_smm)
 rslt = pybob.solve(p_wrapper_numpy, x0, bounds=bounds, **opt_kwargs)
-np.testing.assert_almost_equal(rslt.f, 740.9225994597118)
+np.testing.assert_almost_equal(rslt.f, 4015.1712797377404)
