@@ -47,6 +47,11 @@ model_params.loc[("disutil_work", "child_35_p"), "fixed"] = False
 model_params.loc[("disutil_work", "child_610_f"), "fixed"] = False
 model_params.loc[("disutil_work", "child_610_p"), "fixed"] = False
 
+model_params.loc[("sd_wage_shock", slice(None)), "fixed"] = False
+model_params.loc[("hetrg_unobs",  slice(None)), "fixed"] = False
+model_params.loc[("exp_accm", slice(None)), "fixed"] = False
+model_params.loc[("shares", "share_1"), "fixed"] = False
+
 model_params = model_params.astype({"fixed": bool})
 
 # We set the tuning parameters of the optimizer so that it runs forever.
@@ -70,4 +75,4 @@ adapter_smm = SimulationBasedEstimationCls(**adapter_kwargs)
 x0, bounds = prepare_optimizer_interface(model_params)
 p_wrapper_numpy = partial(wrapper_numpy, model_params, adapter_smm)
 rslt = pybob.solve(p_wrapper_numpy, x0, bounds=bounds, **opt_kwargs)
-np.testing.assert_almost_equal(rslt.f, 729.9909734183677)
+np.testing.assert_almost_equal(rslt.f, 551.830950963115)
