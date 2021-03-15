@@ -20,4 +20,4 @@ adapter_kwargs["get_moments"] = get_moments
 adapter_kwargs["params"] = model_params
 
 adapter_smm = SimulationBasedEstimationCls(**adapter_kwargs)
-np.testing.assert_almost_equal(adapter_smm.fval, 551.830950963115)
+np.testing.assert_almost_equal(adapter_smm.fval, 17419.04248402114)
