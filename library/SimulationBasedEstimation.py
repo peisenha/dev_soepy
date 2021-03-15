@@ -35,9 +35,8 @@ class SimulationBasedEstimationCls:
         self.log_file_name_extension = log_file_name_extension
         self.logging_dir = logging_dir
         self.num_evals = 0
-        self.fval = None
 
-        self._calculate_criterion_func_value(self.params)
+        self.fval = self._calculate_criterion_func_value(self.params)[0]
 
     def get_objective(self, params_cand):
 
