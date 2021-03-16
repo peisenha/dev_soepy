@@ -40,6 +40,7 @@ class SimulationBasedEstimationCls:
         self.params = params_cand
 
         fval = self._calculate_criterion_func_value(params_cand)
+        self.num_evals = self.num_evals + 1
 
         if fval < self.fval:
             self._logging_smm(params_cand, fval)
@@ -81,7 +82,7 @@ class SimulationBasedEstimationCls:
         df_step = pd.concat([params_cand], keys=[self.num_evals], names=["Step"])
         df_step.loc[(self.num_evals, "fval", "fval"), "value"] = fval
         self.df_steps = pd.concat([self.df_steps, df_step])
-        self.df_steps.to_pickle("steps.respy.pkl")
+        self.df_steps.to_pickle("steps.soepy.pkl")
 
 
 def df_alignment(df):
