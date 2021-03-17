@@ -60,8 +60,9 @@ def df_alignment(df, is_obs=False):
         columns = df_int.columns
         df_int.index.set_levels(range(num_persons), level="Identifier", inplace=True)
 
-        index = pd.MultiIndex.from_product([range(num_persons), range(max_period + 1)],
-                                           names=["Identifier", "Period"])
+        index = pd.MultiIndex.from_product(
+            [range(num_persons), range(max_period + 1)], names=["Identifier", "Period"]
+        )
         df_grid = pd.DataFrame(data=None, columns=columns, index=index)
         df_grid.update(df_int)
     else:
@@ -75,7 +76,12 @@ def plot_basics_choices(df_obs, df_sim):
     for choice in ["Full", "Part", "Home"]:
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, figsize=(16, 8))
 
-        for edu_level, ax in [("High", ax1), ("Medium", ax2), ("Low", ax3), ("All", ax4)]:
+        for edu_level, ax in [
+            ("High", ax1),
+            ("Medium", ax2),
+            ("Low", ax3),
+            ("All", ax4),
+        ]:
 
             if edu_level != "All":
                 df_sim_subset = df_sim[df_sim["Education_Level"] == edu_level]
@@ -84,8 +90,16 @@ def plot_basics_choices(df_obs, df_sim):
                 df_sim_subset = df_sim
                 df_obs_subset = df_obs
 
-            y_sim = df_sim_subset.groupby("Period").Choice.value_counts(normalize=True).loc[(slice(None), choice)]
-            y_obs = df_obs_subset.groupby("Period").Choice.value_counts(normalize=True).loc[(slice(None), choice)]
+            y_sim = (
+                df_sim_subset.groupby("Period")
+                .Choice.value_counts(normalize=True)
+                .loc[(slice(None), choice)]
+            )
+            y_obs = (
+                df_obs_subset.groupby("Period")
+                .Choice.value_counts(normalize=True)
+                .loc[(slice(None), choice)]
+            )
 
             x = df_sim.index.get_level_values("Period").unique()
 
@@ -95,9 +109,9 @@ def plot_basics_choices(df_obs, df_sim):
             ax.set_ylim([0, 1])
             ax.set_title(f"{choice}, {edu_level}")
 
+
 def plot_basics_wages(df_obs, df_sim, std=False):
-    
-    
+
     for work_level in ["Full", "Part"]:
 
         df_sim_work_level = df_sim[df_sim["Choice"] == work_level]
@@ -107,11 +121,20 @@ def plot_basics_wages(df_obs, df_sim, std=False):
 
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, figsize=(16, 8))
 
-        for edu_level, ax in [("High", ax1), ("Medium", ax2), ("Low", ax3), ("All", ax4)]:
+        for edu_level, ax in [
+            ("High", ax1),
+            ("Medium", ax2),
+            ("Low", ax3),
+            ("All", ax4),
+        ]:
 
             if edu_level != "All":
-                df_sim_subset = df_sim_work_level[df_sim_work_level["Education_Level"] == edu_level]
-                df_obs_subset = df_obs_work_level[df_obs_work_level["Education_Level"] == edu_level]
+                df_sim_subset = df_sim_work_level[
+                    df_sim_work_level["Education_Level"] == edu_level
+                ]
+                df_obs_subset = df_obs_work_level[
+                    df_obs_work_level["Education_Level"] == edu_level
+                ]
             else:
                 df_sim_subset = df_sim_work_level
                 df_obs_subset = df_obs_work_level
@@ -125,21 +148,30 @@ def plot_basics_wages(df_obs, df_sim, std=False):
             ax.plot(x, y_obs, label="Observed")
             ax.legend()
             ax.set_title(f"Mean, {work_level}, {edu_level}")
-                        
+
         if not std:
             continue
 
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, figsize=(16, 8))
 
-        for edu_level, ax in [("High", ax1), ("Medium", ax2), ("Low", ax3), ("All", ax4)]:
+        for edu_level, ax in [
+            ("High", ax1),
+            ("Medium", ax2),
+            ("Low", ax3),
+            ("All", ax4),
+        ]:
 
             if edu_level != "All":
-                df_sim_subset = df_sim_work_level[df_sim_work_level["Education_Level"] == edu_level]
-                df_obs_subset = df_obs_work_level[df_obs_work_level["Education_Level"] == edu_level]
+                df_sim_subset = df_sim_work_level[
+                    df_sim_work_level["Education_Level"] == edu_level
+                ]
+                df_obs_subset = df_obs_work_level[
+                    df_obs_work_level["Education_Level"] == edu_level
+                ]
             else:
                 df_sim_subset = df_sim_work_level
                 df_obs_subset = df_obs_work_level
-                
+
             y_sim = df_sim_subset.groupby("Period")["Wage_Observed"].std()
             y_obs = df_obs_subset.groupby("Period")["Wage_Observed"].std()
 
