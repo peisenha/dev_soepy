@@ -130,10 +130,4 @@ def get_moments(df):
 
     moments += list(df_wages_var_grid.sort_index().values.flatten())
 
-    # Persistence in choices
-    df_int.loc[:, "Choice_Lagged"] = df_int.groupby("Identifier").shift(1)[["Choice"]]
-    rslt = pd.crosstab(df_int["Choice"], df_int["Choice_Lagged"], normalize="index")
-
-    moments += list(rslt.sort_index().values.flatten())
-
     return moments
