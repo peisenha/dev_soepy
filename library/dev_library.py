@@ -52,6 +52,7 @@ def df_alignment(df, is_obs=False):
     df_int.replace(rename, inplace=True)
 
     df_int.set_index(["Identifier", "Period"], inplace=True)
+    df_int.sort_index(inplace=True)
 
     if is_obs:
         num_persons = df_int.index.get_level_values("Identifier").nunique()
