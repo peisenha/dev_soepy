@@ -37,9 +37,9 @@ def get_moments(df):
 
     # We drop all information on early decisions among the high educated due to data issues.
     index = pd.MultiIndex.from_product([range(5), ["High"], LABELS_CHOICE])
-    df_probs_grid = grid.drop(index)
+    grid = grid.drop(index)
 
-    moments += df_probs_grid.sort_index()["Value"].to_list()
+    moments += grid.sort_index()["Value"].to_list()
 
     # Choice probabilities, differentiating by age range of youngest child, default entry is zero
     # We restrict attention to the first 20 periods as afterwards the cells get rather thin
@@ -66,6 +66,10 @@ def get_moments(df):
     info = df_working.groupby(conditioning)["Wage_Observed"].mean()
     grid.update(info.rename("Value"))
 
+    # We drop all information on early decisions among the high educated due to data issues.
+    index = pd.MultiIndex.from_product([range(5), ["High"], LABELS_WORK])
+    grid = grid.drop(index)
+
     moments += grid.sort_index()["Value"].to_list()
 
     # Average wages, differentiating by education and experience, default entry is average wage
@@ -83,6 +87,10 @@ def get_moments(df):
 
         info = df_working.groupby(conditioning)["Wage_Observed"].mean()
         grid.update(info.rename("Value"))
+
+        # We drop all information on early decisions among the high educated due to data issues.
+        index = pd.MultiIndex.from_product([[choice], ["High"], range(5)])
+        grid = grid.drop(index)
 
         moments += grid.sort_index()["Value"].to_list()
 
