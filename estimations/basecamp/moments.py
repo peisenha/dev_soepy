@@ -37,9 +37,9 @@ def get_moments(df):
 
     # We drop all information on early decisions among the high educated due to data issues.
     index = pd.MultiIndex.from_product([range(5), ["High"], LABELS_CHOICE])
-    df_probs_grid = grid.drop(index)
+    grid = grid.drop(index)
 
-    moments += df_probs_grid.sort_index()["Value"].to_list()
+    moments += grid.sort_index()["Value"].to_list()
 
     # Choice probabilities, differentiating by age range of youngest child, default entry is zero
     # We restrict attention to the first 20 periods as afterwards the cells get rather thin
