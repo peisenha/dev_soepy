@@ -30,14 +30,14 @@ def get_moments(df):
     default_entry = 0
 
     index = pd.MultiIndex.from_product(entries, names=conditioning)
-    df_probs_grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
+    grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
 
     info = df_int.groupby(conditioning[:2]).Choice.value_counts(normalize=True)
-    df_probs_grid.update(info.rename("Value"))
+    grid.update(info.rename("Value"))
 
     # We drop all information on early decisions among the high educated due to data issues.
     index = pd.MultiIndex.from_product([range(5), ["High"], LABELS_CHOICE])
-    df_probs_grid = df_probs_grid.drop(index)
+    df_probs_grid = grid.drop(index)
 
     moments += df_probs_grid.sort_index()["Value"].to_list()
 
@@ -48,12 +48,12 @@ def get_moments(df):
     default_entry = 0
 
     index = pd.MultiIndex.from_product(entries, names=conditioning)
-    df_probs_grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
+    grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
 
     info = df_int.groupby(conditioning[:2])["Choice"].value_counts(normalize=True)
-    df_probs_grid.update(info.rename("Value"))
+    grid.update(info.rename("Value"))
 
-    moments += df_probs_grid.sort_index()["Value"].to_list()
+    moments += grid.sort_index()["Value"].to_list()
 
     # Average wages, differentiating by education, default entry is average wage in sample
     entries = [list(range(num_periods)), LABELS_EDUCATION, LABELS_WORK]
@@ -61,14 +61,12 @@ def get_moments(df):
     default_entry = df_int["Wage_Observed"].mean()
 
     index = pd.MultiIndex.from_product(entries, names=conditioning)
-    df_wages_grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
+    grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
 
-    df_wages_mean = (
-        df_working.groupby(conditioning)["Wage_Observed"].mean().rename("Value")
-    )
-    df_wages_grid.update(df_wages_mean)
+    info = df_working.groupby(conditioning)["Wage_Observed"].mean()
+    grid.update(info.rename("Value"))
 
-    moments += list(df_wages_grid.sort_index().values.flatten())
+    moments += grid.sort_index()["Value"].to_list()
 
     # Average wages, differentiating by education and experience, default entry is average wage
     # in sample.
@@ -79,16 +77,14 @@ def get_moments(df):
 
         conditioning = ["Choice", "Education_Level", exp_label]
         entries = [[choice], LABELS_EDUCATION, range(20)]
+
         index = pd.MultiIndex.from_product(entries, names=conditioning)
-
         grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
-        rslt = (
-            df_working.groupby(conditioning)["Wage_Observed"].mean().rename("Value")
-        )
 
-        grid.update(rslt)
+        info = df_working.groupby(conditioning)["Wage_Observed"].mean()
+        grid.update(info.rename("Value"))
 
-        moments += list(grid.sort_index().values.flatten())
+        moments += grid.sort_index()["Value"].to_list()
 
     # Distribution of wages, default entry is average wage in sample.
     default_entry = df_working["Wage_Observed"].mean()
@@ -99,26 +95,19 @@ def get_moments(df):
 
     index = pd.MultiIndex.from_product(entries, names=conditioning)
     grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
-    rslt = (
-        df_working.groupby(["Choice"])["Wage_Observed"]
-        .quantile(quantiles)
-        .rename("Value")
-    )
-    grid.update(rslt)
 
-    moments += list(grid.sort_index().values.flatten())
+    info = df_working.groupby(["Choice"])["Wage_Observed"].quantile(quantiles)
+    grid.update(info.rename("Value"))
+
+    moments += grid.sort_index()["Value"].to_list()
 
     # Variance of wages by work status, overall, default entry is variance of wage in sample
     default_entry = df_int["Wage_Observed"].var()
+    grid = pd.DataFrame(data=default_entry, columns=["Value"], index=LABELS_WORK)
 
-    index = ["Full", "Part"]
-    df_wages_var_grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
+    info = df_working.groupby(["Choice"])["Wage_Observed"].var()
+    grid.update(info.rename("Value"))
 
-    df_wages_var = (
-        df_working.groupby(["Choice"])["Wage_Observed"].var().rename("Value")
-    )
-    df_wages_var_grid.update(df_wages_var)
-
-    moments += list(df_wages_var_grid.sort_index().values.flatten())
+    moments += grid.sort_index()["Value"].to_list()
 
     return moments
