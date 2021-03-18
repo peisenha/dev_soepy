@@ -42,20 +42,15 @@ def get_moments(df):
 
     # Choice probabilities, differentiating by age range of youngest child, default entry is zero
     # We restrict attention to the first 20 periods as afterwards the cells get rather thin
-    max_period = 20
-    entries = [list(range(max_period)), LABELS_AGE, LABELS_CHOICE]
+    entries = [list(range(20)), LABELS_AGE, LABELS_CHOICE]
     conditioning = ["Period", "Age_Range", "Choice"]
     default_entry = 0
 
     index = pd.MultiIndex.from_product(entries, names=conditioning)
     df_probs_grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
 
-    df_probs = (
-        df_int.groupby(conditioning[:2])
-        .Choice.value_counts(normalize=True)
-        .rename("Value")
-    )
-    df_probs_grid.update(df_probs)
+    info = df_int.groupby(conditioning[:2])["Choice"].value_counts(normalize=True)
+    df_probs_grid.update(info.rename("Value"))
 
     moments += list(df_probs_grid.sort_index().values.flatten())
 
