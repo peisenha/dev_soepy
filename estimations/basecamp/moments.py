@@ -13,8 +13,8 @@ def get_moments(df):
 
     # For the observed dataset, we have many missing values in our dataset and so we must
     # restrict attention to those that work and make sure we have a numeric type.
-    df_sim_working = df_int[df_int["Choice"].isin(LABELS_WORK)]
-    df_sim_working = df_sim_working.astype({"Wage_Observed": np.float})
+    df_working = df_int[df_int["Choice"].isin(LABELS_WORK)]
+    df_working = df_working.astype({"Wage_Observed": np.float})
 
     # We need to add information on the age range of the youngest child and construct some
     # auxiliary variables.
@@ -22,6 +22,7 @@ def get_moments(df):
     df_int["Age_Range"] = pd.cut(df_int["Age_Youngest_Child"], bins)
     df_int["Age_Range"].cat.rename_categories(LABELS_AGE, inplace=True)
     num_periods = df_int.index.get_level_values("Period").max()
+    moments = []
 
     # Choice probabilities, differentiating by education, default entry is zero
     entries = [list(range(num_periods)), LABELS_EDUCATION, LABELS_CHOICE]
@@ -38,7 +39,7 @@ def get_moments(df):
     index = pd.MultiIndex.from_product([range(5), ["High"], LABELS_CHOICE])
     df_probs_grid = df_probs_grid.drop(index)
 
-    moments = list(df_probs_grid.sort_index().values.flatten())
+    moments += df_probs_grid.sort_index()["Value"].to_list()
 
     # Choice probabilities, differentiating by age range of youngest child, default entry is zero
     # We restrict attention to the first 20 periods as afterwards the cells get rather thin
@@ -52,7 +53,7 @@ def get_moments(df):
     info = df_int.groupby(conditioning[:2])["Choice"].value_counts(normalize=True)
     df_probs_grid.update(info.rename("Value"))
 
-    moments += list(df_probs_grid.sort_index().values.flatten())
+    moments += df_probs_grid.sort_index()["Value"].to_list()
 
     # Average wages, differentiating by education, default entry is average wage in sample
     entries = [list(range(num_periods)), LABELS_EDUCATION, LABELS_WORK]
@@ -60,20 +61,18 @@ def get_moments(df):
     default_entry = df_int["Wage_Observed"].mean()
 
     index = pd.MultiIndex.from_product(entries, names=conditioning)
-    df_wages_mean_grid = pd.DataFrame(
-        data=default_entry, columns=["Value"], index=index
-    )
+    df_wages_grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
 
     df_wages_mean = (
-        df_sim_working.groupby(conditioning)["Wage_Observed"].mean().rename("Value")
+        df_working.groupby(conditioning)["Wage_Observed"].mean().rename("Value")
     )
-    df_wages_mean_grid.update(df_wages_mean)
+    df_wages_grid.update(df_wages_mean)
 
-    moments += list(df_wages_mean_grid.sort_index().values.flatten())
+    moments += list(df_wages_grid.sort_index().values.flatten())
 
     # Average wages, differentiating by education and experience, default entry is average wage
     # in sample.
-    default_entry = df_sim_working["Wage_Observed"].mean()
+    default_entry = df_working["Wage_Observed"].mean()
 
     for choice in LABELS_WORK:
         exp_label = f"Experience_{choice}_Time"
@@ -84,7 +83,7 @@ def get_moments(df):
 
         grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
         rslt = (
-            df_sim_working.groupby(conditioning)["Wage_Observed"].mean().rename("Value")
+            df_working.groupby(conditioning)["Wage_Observed"].mean().rename("Value")
         )
 
         grid.update(rslt)
@@ -92,7 +91,7 @@ def get_moments(df):
         moments += list(grid.sort_index().values.flatten())
 
     # Distribution of wages, default entry is average wage in sample.
-    default_entry = df_sim_working["Wage_Observed"].mean()
+    default_entry = df_working["Wage_Observed"].mean()
 
     quantiles = [0.1, 0.25, 0.50, 0.75, 0.9]
     conditioning = ["Choice", "Quantile"]
@@ -101,7 +100,7 @@ def get_moments(df):
     index = pd.MultiIndex.from_product(entries, names=conditioning)
     grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
     rslt = (
-        df_sim_working.groupby(["Choice"])["Wage_Observed"]
+        df_working.groupby(["Choice"])["Wage_Observed"]
         .quantile(quantiles)
         .rename("Value")
     )
@@ -116,7 +115,7 @@ def get_moments(df):
     df_wages_var_grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
 
     df_wages_var = (
-        df_sim_working.groupby(["Choice"])["Wage_Observed"].var().rename("Value")
+        df_working.groupby(["Choice"])["Wage_Observed"].var().rename("Value")
     )
     df_wages_var_grid.update(df_wages_var)
 
