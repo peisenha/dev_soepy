@@ -16,10 +16,11 @@ def get_moments(df):
     df_sim_working = df_int[df_int["Choice"].isin(LABELS_WORK)]
     df_sim_working = df_sim_working.astype({"Wage_Observed": np.float})
 
-    # We need to add information on the age range of the youngest child.
+    # We need to add information on the age range of the youngest child and construct some
+    # auxiliary variables.
     bins = pd.IntervalIndex.from_tuples([(-0.1, 2.1), (2.9, 5.1), (5.9, 10.1)])
-    df_int["Age_Range"] = pd.cut(df_int["Age_Youngest_Child"], bins, labels=LABELS_AGE)
-
+    df_int["Age_Range"] = pd.cut(df_int["Age_Youngest_Child"], bins)
+    df_int["Age_Range"].cat.rename_categories(LABELS_AGE, inplace=True)
     num_periods = df_int.index.get_level_values("Period").max()
 
     # Choice probabilities, differentiating by education, default entry is zero
@@ -30,12 +31,8 @@ def get_moments(df):
     index = pd.MultiIndex.from_product(entries, names=conditioning)
     df_probs_grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
 
-    df_probs = (
-        df_int.groupby(conditioning[:2])
-        .Choice.value_counts(normalize=True)
-        .rename("Value")
-    )
-    df_probs_grid.update(df_probs)
+    info = df_int.groupby(conditioning[:2]).Choice.value_counts(normalize=True)
+    df_probs_grid.update(info.rename("Value"))
 
     # We drop all information on early decisions among the high educated due to data issues.
     index = pd.MultiIndex.from_product([range(5), ["High"], LABELS_CHOICE])
@@ -46,7 +43,7 @@ def get_moments(df):
     # Choice probabilities, differentiating by age range of youngest child, default entry is zero
     # We restrict attention to the first 20 periods as afterwards the cells get rather thin
     max_period = 20
-    entries = [list(range(max_period)), bins.get_level_values(0), LABELS_CHOICE]
+    entries = [list(range(max_period)), LABELS_AGE, LABELS_CHOICE]
     conditioning = ["Period", "Age_Range", "Choice"]
     default_entry = 0
 
@@ -129,11 +126,5 @@ def get_moments(df):
     df_wages_var_grid.update(df_wages_var)
 
     moments += list(df_wages_var_grid.sort_index().values.flatten())
-
-    # Persistence in choices
-    df_int.loc[:, "Choice_Lagged"] = df_int.groupby("Identifier").shift(1)[["Choice"]]
-    rslt = pd.crosstab(df_int["Choice"], df_int["Choice_Lagged"], normalize="index")
-
-    moments += list(rslt.sort_index().values.flatten())
 
     return moments
