@@ -1,0 +1,28 @@
+name: structExpectations-development
+
+channels:
+  - defaults
+  - conda-forge
+  - OpenSourceEconomics
+
+dependencies:
+  - python=3.7.3
+  - pip=19.0.3
+  - codecov
+  - estimagic
+  - matplotlib>=3.0.0
+  - numba>=0.43.1
+  - pandas>=0.24
+  - pyaml
+  - numpy
+  - nlopt
+  - pytest
+  - pytest-cov
+  - Sphinx>=2.0.0
+  - flake8
+  - sphinx-autobuild
+  - pip:
+    - Py-BOBYQA
+    - black
+    - pre-commit
+    - PyPDF2
