@@ -6,7 +6,6 @@ channels:
   - OpenSourceEconomics
 
 dependencies:
-  - python=3.7.3
   - pip=19.0.3
   - codecov
   - estimagic
