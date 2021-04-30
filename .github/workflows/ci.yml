@@ -1,0 +1,24 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: conda-incubator/setup-miniconda@v2
+      with:
+           activate-environment: structExpectations-development
+           environment-file: environment.yml
+           python-version: 3.8
+           auto-activate-base: false
+
+    - name: run basecamp
+      shell: bash -l {0}
+      run: |
+        export PATH="$PATH:/usr/share/miniconda/bin"
+        source .envrc
+        cd estimations/basecamp; python run.py
