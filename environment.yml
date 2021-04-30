@@ -21,6 +21,7 @@ dependencies:
   - Sphinx>=2.0.0
   - flake8
   - sphinx-autobuild
+  - jupyterlab
   - pip:
     - Py-BOBYQA
     - black
