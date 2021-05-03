@@ -4,6 +4,7 @@ channels:
   - defaults
   - conda-forge
   - OpenSourceEconomics
+  - boryana-ilieva
 
 dependencies:
   - pip
@@ -15,6 +16,7 @@ dependencies:
   - pyaml
   - numpy
   - nlopt
+  - soepy
   - pytest
   - pytest-cov
   - Sphinx
