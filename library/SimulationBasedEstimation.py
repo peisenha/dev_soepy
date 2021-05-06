@@ -85,16 +85,3 @@ class SimulationBasedEstimationCls:
         df_step.loc[(self.num_evals, "fval", "fval"), "value"] = fval
         self.df_steps = pd.concat([self.df_steps, df_step])
         self.df_steps.to_pickle("steps.soepy.pkl")
-
-
-def df_alignment(df):
-    df_int = df.copy()
-    rename = dict()
-    rename["Choice"] = {0: "Home", 1: "Part", 2: "Full"}
-    rename["Education_Level"] = {0: "Low", 1: "Medium", 2: "High"}
-
-    df_int.replace(rename, inplace=True)
-
-    df_int.set_index(["Identifier", "Period"], inplace=True)
-
-    return df_int
