@@ -66,10 +66,6 @@ def get_moments(df):
     info = df_working.groupby(conditioning)["Wage_Observed"].mean()
     grid.update(info.rename("Value"))
 
-    # We drop all information on early decisions among the high educated due to data issues.
-    index = pd.MultiIndex.from_product([range(5), ["High"], LABELS_WORK])
-    grid = grid.drop(index)
-
     moments += grid.sort_index()["Value"].to_list()
 
     # Average wages, differentiating by education and experience, default entry is average wage
@@ -109,8 +105,12 @@ def get_moments(df):
 
     moments += grid.sort_index()["Value"].to_list()
 
+    # TODO: The next line rules out any issues in the variance calculation du to the duplicated
+    # entries in the observed dataset for the weighting.
+    df_working.drop_duplicates(inplace=True)
+
     # Variance of wages by work status, overall, default entry is variance of wage in sample
-    default_entry = df_int["Wage_Observed"].var()
+    default_entry = df_working["Wage_Observed"].var()
 
     conditioning = ["Period", "Choice"]
     entries = [list(range(num_periods)), LABELS_WORK]

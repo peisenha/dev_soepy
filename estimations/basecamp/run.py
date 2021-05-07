@@ -10,7 +10,7 @@ from moments import get_moments
 df_start = pd.read_pickle("start.soepy.pkl")
 
 adapter_kwargs = dict()
-adapter_kwargs["weighting_matrix"] = pkl.load(open("weighting-matrix.pkl", "rb"))
+adapter_kwargs["weighting_matrix"] = np.identity(1301)#pkl.load(open("weighting-matrix.pkl", "rb"))
 adapter_kwargs["model_spec_init_file_name"] = "resources/model_spec_init.yml"
 adapter_kwargs["moments_obs"] = pkl.load(open("observed-moments.pkl", "rb"))
 adapter_kwargs["get_moments"] = get_moments
