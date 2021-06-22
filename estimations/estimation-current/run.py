@@ -12,7 +12,6 @@ from pybobyqa_auxiliary import prepare_optimizer_interface
 from pybobyqa_auxiliary import wrapper_numpy
 from moments import get_moments
 
-
 df_start = pd.read_pickle("start.soepy.pkl")
 
 # We need to set up our criterion function.
@@ -24,7 +23,7 @@ adapter_kwargs["get_moments"] = get_moments
 adapter_kwargs["params"] = df_start
 
 adapter_smm = SimulationBasedEstimationCls(**adapter_kwargs)
-np.testing.assert_almost_equal(adapter_smm.fval, 4235.0193166084929)
+np.testing.assert_almost_equal(adapter_smm.fval, 5535.915658448049)
 
 # We set the tuning parameters of the optimizer so that it runs forever.
 opt_kwargs = dict()
@@ -36,4 +35,4 @@ opt_kwargs["maxfun"] = 1
 x0, bounds = prepare_optimizer_interface(df_start)
 p_wrapper_numpy = partial(wrapper_numpy, df_start, adapter_smm)
 rslt = pybob.solve(p_wrapper_numpy, x0, bounds=bounds, **opt_kwargs)
-np.testing.assert_almost_equal(rslt.f, 4235.019316608492)
+np.testing.assert_almost_equal(rslt.f, 5535.915658448049)
