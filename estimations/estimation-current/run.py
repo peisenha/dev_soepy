@@ -35,4 +35,4 @@ opt_kwargs["maxfun"] = 1
 x0, bounds = prepare_optimizer_interface(df_start)
 p_wrapper_numpy = partial(wrapper_numpy, df_start, adapter_smm)
 rslt = pybob.solve(p_wrapper_numpy, x0, bounds=bounds, **opt_kwargs)
-np.testing.assert_almost_equal(rslt.f, 45669.391248045685)
+np.testing.assert_almost_equal(rslt.f, 5669.391248045685)
