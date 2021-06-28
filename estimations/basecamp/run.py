@@ -17,4 +17,4 @@ adapter_kwargs["get_moments"] = get_moments
 adapter_kwargs["params"] = df_start
 
 adapter_smm = SimulationBasedEstimationCls(**adapter_kwargs)
-np.testing.assert_almost_equal(adapter_smm.fval, 5535.915658448049)
+np.testing.assert_almost_equal(adapter_smm.fval, 4185.947681993344)
