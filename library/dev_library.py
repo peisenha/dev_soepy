@@ -73,7 +73,7 @@ def df_alignment(df, is_obs=False):
 
 def plot_basics_choices(df_obs, df_sim):
 
-    for choice in ["Full", "Part", "Home"]:
+    for choice in ["Full", "Home", "Part"]:
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, figsize=(16, 8))
 
         for edu_level, ax in [
@@ -92,12 +92,12 @@ def plot_basics_choices(df_obs, df_sim):
 
             y_sim = (
                 df_sim_subset.groupby("Period")
-                .Choice.value_counts(normalize=True)
+                .Choice.value_counts(normalize=True).sort_index()
                 .loc[(slice(None), choice)]
             )
             y_obs = (
                 df_obs_subset.groupby("Period")
-                .Choice.value_counts(normalize=True)
+                .Choice.value_counts(normalize=True).sort_index()
                 .loc[(slice(None), choice)]
             )
 
