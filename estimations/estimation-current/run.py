@@ -25,8 +25,6 @@ adapter_kwargs["params"] = df_start
 adapter_smm = SimulationBasedEstimationCls(**adapter_kwargs)
 np.testing.assert_almost_equal(adapter_smm.fval, 13694.589085395904)
 
-raise AssertionError
-
 # We set the tuning parameters of the optimizer so that it runs forever.
 opt_kwargs = dict()
 opt_kwargs["scaling_within_bounds"] = True
