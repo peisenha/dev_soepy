@@ -15,6 +15,11 @@ LABELS_WORK = ["Part", "Full"]
 data."""
 
 
+def get_criterion_function(moments_obs, moments_sim, weighting_matrix):
+    stats_dif = np.array(moments_obs) - np.array(moments_sim)
+    return float(np.dot(np.dot(stats_dif, weighting_matrix), stats_dif))
+
+
 def get_weighting_matrix(data_frame, get_moments, num_samples):
     """Calculates the weighting matrix based on the
     moments of the observed data"""
