@@ -73,7 +73,7 @@ def get_moments(df):
     info = df_int.groupby(conditioning[:3]).Choice.value_counts(normalize=True)
     grid.update(info.rename("Value"))
 
-    moments = grid.sort_index()["Value"].to_list()
+    moments += grid.sort_index()["Value"].to_list()
 
     # Average wages, differentiating by education, default entry is average wage in sample
     entries = [list(range(num_periods)), LABELS_EDUCATION, LABELS_WORK]
