@@ -9,16 +9,15 @@ from SimulationBasedEstimation import SimulationBasedEstimationCls
 from pybobyqa_auxiliary import prepare_optimizer_interface
 from pybobyqa_auxiliary import wrapper_numpy
 
-# Modifications
 sys.path.insert(0, "../")
 from utils import common_setup
 
 params_start, adapter_kwargs, opt_kwargs = common_setup()
 
-raise AssertionError
-#missing the intercept and experience returns fre
-
 cols = ["value", "fixed"]
+params_start.loc[("const_wage_eq", "gamma_0s1"), "fixed"] = False
+params_start.loc[("exp_returns", "gamma_1s1"), "fixed"] = False
+
 params_start.loc[("disutil_work", "no_kids_f_educ_low"), cols] = [+0.90, False]   
 params_start.loc[("disutil_work", "no_kids_p_educ_low"), cols] = [-0.75, False]   
 params_start.loc[("disutil_work", "yes_kids_f_educ_low"), cols] = [+1.00, False]
