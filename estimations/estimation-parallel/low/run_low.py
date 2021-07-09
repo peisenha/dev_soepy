@@ -14,20 +14,23 @@ from utils import common_setup
 
 params_start, adapter_kwargs, opt_kwargs = common_setup()
 
-cols = ["value", "fixed"]
 params_start.loc[("const_wage_eq", "gamma_0s1"), "fixed"] = False
 params_start.loc[("exp_returns", "gamma_1s1"), "fixed"] = False
 
-params_start.loc[("disutil_work", "no_kids_f_educ_low"), cols] = [+0.90, False]   
-params_start.loc[("disutil_work", "no_kids_p_educ_low"), cols] = [-0.75, False]   
-params_start.loc[("disutil_work", "yes_kids_f_educ_low"), cols] = [+1.00, False]
-params_start.loc[("disutil_work", "yes_kids_p_educ_low"), cols] = [-0.70, False]
+params_start.loc[("disutil_work", "no_kids_f_educ_low"),  "fixed"] = False
+params_start.loc[("disutil_work", "no_kids_p_educ_low"),  "fixed"] = False
+params_start.loc[("disutil_work", "yes_kids_f_educ_low"), "fixed"] = False
+params_start.loc[("disutil_work", "yes_kids_p_educ_low"), "fixed"] = False
+
+params_start.loc[("disutil_work", "no_kids_f_educ_low"), ["upper", "lower"]] = [1.25, 0.75]
+params_start.loc[("disutil_work", "no_kids_p_educ_low"), ["upper", "lower"]] = [-0.5, -1.00]
+params_start.loc[("disutil_work", "yes_kids_p_educ_low"), ["upper", "lower"]] = [-0.5, -1.00]
 params_start.to_pickle("start_updated.soepy.pkl")
 
 # Setup 
 adapter_kwargs["params"] = params_start
 adapter_smm = SimulationBasedEstimationCls(**adapter_kwargs)
-np.testing.assert_almost_equal(adapter_smm.fval, 70927.39287643667)
+np.testing.assert_almost_equal(adapter_smm.fval, 43653.223521637716)
 
 # Estimation
 opt_kwargs["maxfun"] = 1
@@ -35,4 +38,4 @@ opt_kwargs["maxfun"] = 1
 x0, bounds = prepare_optimizer_interface(params_start)
 p_wrapper_numpy = partial(wrapper_numpy, params_start, adapter_smm)
 rslt = pybob.solve(p_wrapper_numpy, x0, bounds=bounds, **opt_kwargs)
-np.testing.assert_almost_equal(rslt.f, 70927.39287643667)
+np.testing.assert_almost_equal(rslt.f, 43653.223521637716)
