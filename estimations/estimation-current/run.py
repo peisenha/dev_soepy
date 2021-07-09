@@ -12,7 +12,7 @@ from pybobyqa_auxiliary import prepare_optimizer_interface
 from pybobyqa_auxiliary import wrapper_numpy
 from moments import get_moments
 
-df_start = pd.read_pickle("start.soepy.pkl")
+df_start = pd.read_pickle("start_new.soepy.pkl")
 
 # We need to set up our criterion function.
 adapter_kwargs = dict()
