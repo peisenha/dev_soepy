@@ -22,10 +22,9 @@ adapter_kwargs["moments_obs"] = pkl.load(open("resources/observed-moments.pkl", 
 adapter_kwargs["get_moments"] = get_moments
 adapter_kwargs["params"] = params_start
 
-
 # Setup 
 adapter_smm = SimulationBasedEstimationCls(**adapter_kwargs)
-np.testing.assert_almost_equal(adapter_smm.fval, 46079.91940236735)
+np.testing.assert_almost_equal(adapter_smm.fval, 45810.650446)
 
 # Estimation
 opt_kwargs = dict()
