@@ -15,6 +15,11 @@ LABELS_WORK = ["Part", "Full"]
 data."""
 
 
+def get_criterion_function(moments_obs, moments_sim, weighting_matrix):
+    stats_dif = np.array(moments_obs) - np.array(moments_sim)
+    return float(np.dot(np.dot(stats_dif, weighting_matrix), stats_dif))
+
+
 def get_weighting_matrix(data_frame, get_moments, num_samples):
     """Calculates the weighting matrix based on the
     moments of the observed data"""
@@ -27,6 +32,7 @@ def get_weighting_matrix(data_frame, get_moments, num_samples):
 
     # Collect n samples of moments
     for k in range(num_samples):
+        print(k)
         identifiers = np.random.choice(identifiers, replace=True, size=len(identifiers))
         df_boot = data_frame_intern.loc[(identifiers, slice(None)), :]
         moments_sample.append(get_moments(df_boot))
@@ -70,10 +76,61 @@ def df_alignment(df, is_obs=False):
 
     return df_grid
 
+def plot_children_choices(df_sim, df_obs):
+    
+    df_obs["Child_present"] = (df_obs["Number_of_Children"] > 0)
+    df_sim["Child_present"] = (df_sim["Age_Youngest_Child"] >= 0)
+    
+    num_periods = df_obs.index.get_level_values("Period").max()
+
+    LABELS_EDUCATION = ["High", "Medium", "Low"]
+    LABELS_CHOICE = ["Home", "Part", "Full"]
+    LABELS_CHILD = [False, True]
+    
+    def get_info(df_int):
+
+        entries = [list(range(num_periods)), LABELS_EDUCATION, LABELS_CHILD, LABELS_CHOICE]
+        conditioning = ["Period", "Education_Level", "Child_present", "Choice"]
+        default_entry = 0
+
+        index = pd.MultiIndex.from_product(entries, names=conditioning)
+        grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
+
+        info = df_int.groupby(conditioning[:3]).Choice.value_counts(normalize=True)
+        grid.update(info.rename("Value"))
+
+        return grid
+
+    info_obs = get_info(df_obs)
+    info_sim = get_info(df_sim)
+    
+    
+    
+    
+    x_values = range(num_periods)
+
+    for edu_level in ["Low", "Medium", "High"]:
+
+        fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3, figsize=(16, 8))
+
+        for ax, choice in [(ax1, "Full"), (ax2, "Home"), (ax3, "Part")]:        
+            ax.set_prop_cycle(None)
+
+            y_sim = info_sim.loc[slice(None), edu_level, True, choice]
+            ax.plot(x_values, y_sim, label=f"Simulated")
+
+            y_obs = info_obs.loc[slice(None), edu_level, True, choice]
+            ax.plot(x_values, y_obs, label=f"Observed")
+
+
+            ax.set_title(f"{edu_level}, {choice}, with children")
+            ax.set_ylim([0, 1])    
+            ax.legend()
+            
 
 def plot_basics_choices(df_obs, df_sim):
 
-    for choice in ["Full", "Part", "Home"]:
+    for choice in ["Full", "Home", "Part"]:
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, figsize=(16, 8))
 
         for edu_level, ax in [
@@ -92,23 +149,24 @@ def plot_basics_choices(df_obs, df_sim):
 
             y_sim = (
                 df_sim_subset.groupby("Period")
-                .Choice.value_counts(normalize=True)
+                .Choice.value_counts(normalize=True).sort_index()
                 .loc[(slice(None), choice)]
             )
             y_obs = (
                 df_obs_subset.groupby("Period")
-                .Choice.value_counts(normalize=True)
+                .Choice.value_counts(normalize=True).sort_index()
                 .loc[(slice(None), choice)]
             )
 
             x = df_sim.index.get_level_values("Period").unique()
-
-            ax.plot(x, y_sim, label="Simulated")
-            ax.plot(x, y_obs, label="Observed")
-            ax.legend()
-            ax.set_ylim([0, 1])
-            ax.set_title(f"{choice}, {edu_level}")
-
+            try:
+                ax.plot(x, y_sim, label="Simulated")
+                ax.plot(x, y_obs, label="Observed")
+                ax.legend()
+                ax.set_ylim([0, 1])
+                ax.set_title(f"{choice}, {edu_level}")
+            except ValueError:
+                pass
 
 def plot_basics_wages(df_obs, df_sim, std=False):
 

@@ -1,0 +1,43 @@
+---
+GENERAL:
+    num_periods: 39
+CONSTANTS:
+    delta: 0.98
+    mu: -0.56
+EDUC:
+    educ_years: [0, 0, 0]
+SIMULATION:
+    seed_sim: 102
+    num_agents_sim: 50000
+EXPERIENCE:
+    exp_cap: 15
+SOLUTION:
+    seed_emax: 635
+    num_draws_emax: 500
+TAXES_TRANSFERS:
+    alg1_replacement_no_child: 0.6
+    alg1_replacement_child: 0.67
+    child_benefits: 43
+    regelsatz_single: 91
+    regelsatz_partner: 82
+    regelsatz_child: 59
+    motherhood_replacement: 0.67
+    addition_child_single: 33
+    housing: 62
+    deductions: [0.085, 0.0975, 0.0325, 1411.00, 445.00]
+    income_tax: [163.00, 1001.00, 0.14, 0.42, 0.055]
+INITIAL_CONDITIONS:
+    educ_shares_file_name: 'resources/exog_educ_shares.pkl'
+    child_age_shares_file_name: 'resources/exog_child_age_shares.pkl'
+    child_age_init_max: 4
+    partner_shares_file_name: 'resources/exog_partner_shares.pkl'
+EXOG_PROC:
+    child_info_file_name: 'resources/exog_child_info.pkl'
+    partner_arrival_info_file_name: 'resources/exog_partner_arrival_info.pkl'
+    partner_separation_info_file_name: 'resources/exog_partner_separation_info.pkl'
+    child_age_max: 55
+    last_child_bearing_period: 24
+    partner_cf_const: 2.43502
+    partner_cf_age: 0.0354535
+    partner_cf_age_sq: -0.0006722
+    partner_cf_educ: 0.1479528

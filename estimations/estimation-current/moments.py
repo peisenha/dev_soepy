@@ -5,11 +5,18 @@ LABELS_EDUCATION = ["High", "Medium", "Low"]
 LABELS_CHOICE = ["Home", "Part", "Full"]
 LABELS_AGE = ["0-2", "3-5", "6-10"]
 LABELS_WORK = ["Part", "Full"]
+LABELS_CHILD = [False, True]
 
 
 def get_moments(df):
 
     df_int = df.copy()
+
+    # We need to add information on whether a child is present.
+    try:
+        df_int["Child_present"] = (df_int["Number_of_Children"] > 0)
+    except:
+        df_int["Child_present"] = (df_int["Age_Youngest_Child"] >= 0)
 
     # For the observed dataset, we have many missing values in our dataset and so we must
     # restrict attention to those that work and make sure we have a numeric type.
@@ -51,6 +58,19 @@ def get_moments(df):
     grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
 
     info = df_int.groupby(conditioning[:2])["Choice"].value_counts(normalize=True)
+    grid.update(info.rename("Value"))
+
+    moments += grid.sort_index()["Value"].to_list()
+
+    # Choice probabilities by presence of child and education level
+    entries = [list(range(num_periods)), LABELS_EDUCATION, LABELS_CHILD, LABELS_CHOICE]
+    conditioning = ["Period", "Education_Level", "Child_present", "Choice"]
+    default_entry = 0
+
+    index = pd.MultiIndex.from_product(entries, names=conditioning)
+    grid = pd.DataFrame(data=default_entry, columns=["Value"], index=index)
+
+    info = df_int.groupby(conditioning[:3]).Choice.value_counts(normalize=True)
     grid.update(info.rename("Value"))
 
     moments += grid.sort_index()["Value"].to_list()
