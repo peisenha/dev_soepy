@@ -31,8 +31,9 @@ opt_kwargs = dict()
 opt_kwargs["scaling_within_bounds"] = True
 opt_kwargs["seek_global_minimum"] = True
 opt_kwargs["objfun_has_noise"] = True
-opt_kwargs["maxfun"] = 100000
+opt_kwargs["maxfun"] = 1
 
 x0, bounds = prepare_optimizer_interface(params_start)
 p_wrapper_numpy = partial(wrapper_numpy, params_start, adapter_smm)
 rslt = pybob.solve(p_wrapper_numpy, x0, bounds=bounds, **opt_kwargs)
+np.testing.assert_almost_equal(adapter_smm.fval, 45810.650446)
